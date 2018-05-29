@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.pecuyu.mvplearn.model.ILoginListener;
 import com.pecuyu.mvplearn.model.UIModelImpl;
 
+import java.lang.ref.WeakReference;
+
 /**
  * <br/>Author: pecuyu
  * <br/>Date: 2018/5/25
@@ -12,36 +14,52 @@ import com.pecuyu.mvplearn.model.UIModelImpl;
  */
 
 public class UIPresenter {
-    private IView mUi;
     private UIModelImpl mUiModel;
 
+    private WeakReference<IView> mUiRef; // 防止内存泄漏
+
     public UIPresenter(IView ui) {
-        mUi = ui;
+        mUiRef = new WeakReference<>(ui);
         mUiModel = new UIModelImpl();
+
     }
 
 
     public void login(String username, String password) {
+        if (mUiRef == null || mUiRef.get() == null) return;
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
-            mUi.showLoginFailedMsg(username, "输入不能为空!");
+            mUiRef.get().showLoginFailedMsg(username, "输入不能为空!");
             return;
         }
-        mUi.showLoginDialog();
+        mUiRef.get().showLoginDialog();
 
         mUiModel.verifyLogin(username, password, new ILoginListener() {
             @Override
             public void onLoginSuccess(String username) {
-                mUi.dismissLoginDialog();
-                mUi.showLoginSuccessMsg(username, "登录成功");
+                if (mUiRef.get() != null) {
+                    IView ui = mUiRef.get();
+                    ui.dismissLoginDialog();
+                    ui.showLoginSuccessMsg(username, "登录成功");
+                }
             }
 
             @Override
             public void onLoginFailed(String username, String errorMsg) {
-                mUi.dismissLoginDialog();
-                mUi.showLoginFailedMsg(username, "登录失败! "+errorMsg);
+                if (mUiRef.get() != null) {
+                    IView ui = mUiRef.get();
+                    ui.dismissLoginDialog();
+                    ui.showLoginFailedMsg(username, "登录失败! " + errorMsg);
+                }
             }
         });
 
+    }
+
+    public void onDetachView() {
+        mUiRef.clear();
+        mUiRef = null;
+        mUiModel.onDetachView();
+        mUiModel=null;
     }
 
 }

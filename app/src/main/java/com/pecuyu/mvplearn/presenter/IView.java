@@ -2,7 +2,6 @@ package com.pecuyu.mvplearn.presenter;
 
 /**
  * <br/>Author: pecuyu
- * <br/>Email: yu.qin@ck-telecom.com
  * <br/>Date: 2018/5/25
  * <br/>TODO:
  */

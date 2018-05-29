@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements IView {
 
     private Button mLogin;
     private ProgressDialog mLoginDialog;
+    private UIPresenter mUiPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements IView {
         mPassword = findViewById(R.id.id_password);
         mLogin = findViewById(R.id.id_btn_login);
 
-        final UIPresenter mUiPresenter = new UIPresenter(this);
+        mUiPresenter = new UIPresenter(this);
 
         mLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,5 +87,11 @@ public class MainActivity extends AppCompatActivity implements IView {
             }
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mUiPresenter.onDetachView();
     }
 }
